@@ -8,7 +8,7 @@
     "dev": "concurrently \"npm:dev:backend\" \"npm:dev:frontend\"",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
-    "dev:desktop": "concurrently -k \"npm:dev:frontend\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:desktop": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "npm --prefix frontend run build",
     "build:win": "npm run build && electron-builder --win nsis",
     "test": "npm --prefix backend test"
