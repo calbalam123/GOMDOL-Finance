@@ -1,0 +1,16 @@
+{
+  "name": "gomdol-finance",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GOMDOL Wallet, Exchange and Economy platform",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix backend test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
