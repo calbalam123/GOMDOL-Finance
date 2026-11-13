@@ -17,6 +17,9 @@ The existing token contract is not redeployed or modified by this repository.
 ## Desktop app
 
 - Electron desktop shell with a local bundled React interface
+- Electron starts a loopback-only Express API and persistent SQLite database automatically
+- Activity events are stored under the current Windows user's application data directory
+- Backend API health and activity history are visible in the desktop dashboard
 - Windows x64 NSIS installer target
 - Application title: GOMDOL Finance
 - Secure BrowserWindow defaults: context isolation enabled, Node integration disabled, sandbox enabled
