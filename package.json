@@ -10,7 +10,7 @@
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:desktop": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "npm --prefix frontend run build",
-    "build:win": "npm run build && electron-builder --win nsis",
+    "build:win": "npm run build && electron-builder --win nsis --publish never",
     "test": "npm --prefix backend test"
   },
   "devDependencies": {
