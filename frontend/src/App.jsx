@@ -22,7 +22,31 @@ export default function App() {
   const [supply, setSupply] = useState("100,000,000");
   const [networkOk, setNetworkOk] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("MetaMask를 연결해 GOMDOL 잔액을 확인하세요.");
+  const [message, setMessage] = useState("MetaMask 또는 WalletConnect 지갑을 연결해 주세요.");
+  const [apiStatus, setApiStatus] = useState("확인 중");
+  const [events, setEvents] = useState([]);
+  const API = window.gomdolDesktop?.apiBaseUrl || import.meta.env.VITE_API_URL || "http://127.0.0.1:4000";
+
+  async function loadActivity(address = account) {
+    try {
+      const query = address ? `?wallet=${encodeURIComponent(address)}` : "";
+      const response = await fetch(`${API}/api/events${query}`);
+      if (!response.ok) throw new Error("활동 기록을 불러오지 못했습니다.");
+      const data = await response.json();
+      setEvents(data.events || []);
+    } catch {
+      setEvents([]);
+    }
+  }
+
+  useEffect(() => {
+    let active = true;
+    fetch(`${API}/api/health`).then(r => { if (!r.ok) throw new Error("offline"); return r.json(); })
+      .then(data => { if (active) setApiStatus(data.status === "ok" ? "정상" : "오류"); })
+      .catch(() => { if (active) setApiStatus("연결 안 됨"); });
+    loadActivity();
+    return () => { active = false; };
+  }, []);
 
   async function refreshWallet(address = account) {
     if (!window.ethereum || !address) return;
@@ -54,6 +78,8 @@ export default function App() {
       if (!accounts.length) throw new Error("지갑 계정을 찾을 수 없습니다.");
       setAccount(accounts[0]);
       await refreshWallet(accounts[0]);
+      await fetch(`${API}/api/events`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "wallet_connected", wallet: accounts[0], payload: { network: "sepolia" } }) }).catch(() => {});
+      await loadActivity(accounts[0]);
       setMessage("지갑이 연결되었습니다.");
     } catch (error) {
       setMessage(error.shortMessage || error.message || "지갑 연결에 실패했습니다.");
@@ -117,9 +143,9 @@ export default function App() {
 
         <section className="lower-grid">
           <article className="panel"><div className="panel-title">Quick actions</div><div className="actions"><button onClick={() => setMessage("송금 기능은 다음 개발 단계에서 추가됩니다.")}><ArrowUpRight/> Send</button><button onClick={() => setMessage("수신 주소 QR 기능은 다음 개발 단계에서 추가됩니다.")}><ArrowDownLeft/> Receive</button><button onClick={() => account && refreshWallet().then(() => setMessage("잔액을 새로고침했습니다.")).catch(e => setMessage(e.message))}><RefreshCw/> Refresh</button></div></article>
-          <article className="panel"><div className="panel-title">Activity</div><div className="empty"><Coins size={22}/><span>아직 플랫폼 내 활동 기록이 없습니다.</span></div></article>
+          <article className="panel"><div className="panel-title">Activity</div>{events.length ? <div className="activity-list">{events.slice(0,5).map(event => <div className="activity-row" key={event.id}><span>{event.type.replaceAll("_"," ")}</span><small>{new Date(event.createdAt).toLocaleString()}</small></div>)}</div> : <div className="empty"><Coins size={22}/><span>아직 플랫폼 내 활동 기록이 없습니다.</span></div>}</article>
         </section>
-        <footer>{message} <a href={`https://sepolia.etherscan.io/address/${CONTRACT}`} target="_blank" rel="noreferrer">Contract on Etherscan ↗</a></footer>
+        <footer><span>{message} · 로컬 API: {apiStatus}</span><a href={`https://sepolia.etherscan.io/address/${CONTRACT}`} target="_blank" rel="noreferrer">Contract on Etherscan ↗</a></footer>
       </section>
     </main>
   );
