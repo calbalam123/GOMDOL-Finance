@@ -1,16 +1,51 @@
 {
   "name": "gomdol-finance",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "GOMDOL Wallet, Exchange and Economy platform",
+  "description": "GOMDOL Finance Windows desktop application",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "concurrently \"npm:dev:backend\" \"npm:dev:frontend\"",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
+    "dev:desktop": "concurrently -k \"npm:dev:frontend\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "npm --prefix frontend run build",
+    "build:win": "npm run build && electron-builder --win nsis",
     "test": "npm --prefix backend test"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "electron": "^35.1.5",
+    "electron-builder": "^26.0.12",
+    "wait-on": "^8.0.2"
+  },
+  "build": {
+    "appId": "com.gomdol.finance",
+    "productName": "GOMDOL Finance",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "GOMDOL-Finance-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }
