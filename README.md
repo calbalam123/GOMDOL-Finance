@@ -1,6 +1,6 @@
 # GOMDOL Finance 🐻
 
-**GOMDOL Wallet, Exchange & Economy** — an experimental financial dashboard for the GOMDOL ERC-20 test token.
+**GOMDOL Wallet, Exchange & Economy** — a Windows desktop application for the GOMDOL ERC-20 test token. This project is packaged as a Windows `.exe`; it is not intended to be deployed as a public website.
 
 ## Existing token
 
@@ -14,56 +14,50 @@
 
 The existing token contract is not redeployed or modified by this repository.
 
-## Current MVP
+## Desktop app
 
-- React dashboard with MetaMask connection
-- Reads the connected wallet's GOMDOL balance and on-chain total supply
-- Checks that the wallet is on Sepolia
-- Express API health and economy summary endpoints
-- SQLite event-storage foundation
-- GitHub Actions frontend build and backend test jobs
+- Electron desktop shell with a local bundled React interface
+- Windows x64 NSIS installer target
+- Application title: GOMDOL Finance
+- Secure BrowserWindow defaults: context isolation enabled, Node integration disabled, sandbox enabled
+- External links are opened in the user's default browser
 
-## Planned roadmap
+## Build the Windows EXE locally
 
-1. Wallet: send/receive UI, transaction history and QR codes
-2. Exchange: testnet order book, limit orders and trade matching
-3. Economy: market metrics, fees, user profiles and admin analytics
-4. Security: input validation, rate limits, audit logs and contract review
+Requirements: Windows 10/11, Node.js 22+, and npm.
 
-## Requirements
-
-- Node.js 22+
-- npm
-- MetaMask browser extension configured for Sepolia
-
-## Run locally
-
-Install dependencies in each application:
-
-```bash
+```powershell
 npm install
 npm --prefix frontend install
-npm --prefix backend install
+npm run build:win
 ```
 
-Copy `.env.example` to `.env` if you need to customize settings. Never commit secrets.
+The installer is generated under `release/\` as `GOMDOL-Finance-Setup-0.2.0.exe`.
 
-Start both services:
+For desktop UI development:
 
-```bash
-npm run dev
+```powershell
+npm install
+npm --prefix frontend install
+npm run dev:desktop
 ```
 
-- Frontend: http://localhost:5173
-- Backend: http://localhost:4000
-- API health: http://localhost:4000/api/health
+## GitHub Actions
 
-For local frontend configuration, Vite reads `VITE_GOMDOL_CONTRACT_ADDRESS` and `VITE_CHAIN_ID` from the frontend environment. The deployed contract address is also configured as a safe public fallback in the UI.
+The **Windows EXE** workflow runs on pushes to `main` and can also be started manually from the Actions tab. It uploads the generated installer as a workflow artifact. Download it from the successful workflow run's Artifacts section.
 
-## Security model
+## Current MVP and next work
 
-- Wallet signatures happen in MetaMask.
+- Desktop shell and Windows installer pipeline
+- React dashboard with GOMDOL contract information
+- Existing browser MetaMask injection flow is not available automatically inside Electron. A desktop-compatible WalletConnect connection must be added before wallet operations can be used in the packaged app.
+- Next: WalletConnect, token balance and transfer UI, transaction history and QR codes
+- Next: testnet exchange order book and simulated limit-order matching
+- Next: economy statistics, fees, profiles and admin analytics
+
+## Security and network notes
+
+- The token is deployed on Sepolia testnet; test tokens have no guaranteed real-world value and are not redeemable for fiat.
 - Never request or store seed phrases or private keys.
-- Do not treat frontend-provided balances or prices as authoritative.
-- Sepolia test tokens have no guaranteed real-world value and are not redeemable for fiat.
-- The initial exchange is planned as a simulated/testnet order book until a reviewed on-chain settlement design exists.
+- Do not commit `.env`, API keys, private keys, or wallet secrets.
+- Exchange matching is planned as a simulated/testnet feature until an audited on-chain settlement design exists.
